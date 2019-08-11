@@ -7,8 +7,55 @@
 # Exit program
 
 def student_list
-  File.open('./lib/student_directory.csv', 'r').readlines.each do |student|
+  file = File.open('student_directory.csv', 'r')
+  file.readlines.each do |student|
     puts student
+  end
+  file.close
+  set_menu
+end
+
+def edit_student
+  existing_students = []
+
+  file = File.open('student_directory.csv', 'r')
+  file.readlines.each do |student|
+    split_student = student.split(',')
+    existing_students << { name: split_student[0], age: split_student[1], gender: split_student[2] }
+  end
+  file.close
+
+  puts "before"
+  puts existing_students
+  puts "-------"
+
+  puts "find student name"
+  student_name = gets.chomp
+
+  if existing_students.any? { |hash| hash[:name] == student_name }
+    puts "ADA BAH"
+
+    student_index = existing_students.index { |hash| hash[:name] == student_name }
+    new_data = existing_students[student_index]
+    puts "new name"
+    new_data[:name] = gets.chomp
+    puts "new age"
+    new_data[:age] = gets.chomp
+    puts "new gender"
+    new_data[:gender] = gets.chomp
+
+
+    puts "after"
+    puts existing_students
+    puts "-----"
+
+    File.truncate("student_directory.csv", 0)
+
+    existing_students.each do |student|
+      File.open("student_directory.csv", "a+") { |file| file.puts "#{student[:name]}, #{student[:age]}, #{student[:gender]}" }
+    end
+  else
+    puts "not exist"
   end
   set_menu
 end
@@ -27,14 +74,17 @@ def set_menu
     user_input_msg
   elsif choice == 2
     student_list
+  elsif choice == 3
+    edit_student
   else
     exit
   end
 end
 
 def data_input
-  @students.each do |obj|
-    File.open("student_directory.csv", "a") { |file| file.puts "#{obj[:name]}, #{obj[:age]}, #{obj[:gender]}" }
+  @students.each do |student|
+    File.open("student_directory.csv", "a") { |file| file.puts "#{student[:name]}, #{student[:age]}, #{student[:gender]}" }
+    File.close
   end
 end
 
